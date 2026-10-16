@@ -17,8 +17,11 @@ starts, the original `MaxPlayers` is restored so late joiners can still enter.
 
 ## Repository layout
 ```
-AutoReady/Classes/   UnrealScript sources (*.uc)
-scripts/build.sh     copy sources to the server and compile
+AutoReady/Classes/      UnrealScript sources (*.uc)
+docs/DEVELOPMENT.md     full guide and development log (Italian)
+tools/nodots.c          LD_PRELOAD shim for the ucc make loop on Linux
+AutoReady.ini.example   default configuration
+scripts/build.sh        copy sources to the server and compile
 ```
 
 ## Build
@@ -28,6 +31,9 @@ On the server (`/opt/ut99-server`):
    `System/UnrealTournament.ini` (only needed while compiling).
 3. `cd /opt/ut99-server/System && ./ucc-bin-amd64 make -nohomedir`
 4. Expect `Success - 0 error(s)`; `AutoReady.u` is created in `System/`.
+
+If `ucc make` hangs on "Analyzing...", preload `tools/nodots.c` (see
+`docs/DEVELOPMENT.md`, "Come ricompilare").
 
 Delete any old `AutoReady.u` before recompiling: `ucc make` skips packages
 that already exist.

@@ -30,3 +30,11 @@ parties with friends. Current version: 1.2.
 - Server-side only: never add to `ServerPackages`.
 - Never commit passwords or real server ini files.
 - Commit messages in English, imperative mood.
+
+## Key files
+- `AutoReady/Classes/AutoReady.uc` – source of the current build (v1.2, 21 593 bytes).
+- `docs/DEVELOPMENT.md` – full guide and development log (Italian): parameters,
+  installation, use cases, troubleshooting, rebuild procedure. Update its
+  "Stato attuale" and "Diario di sviluppo" sections with every new build.
+- `tools/nodots.c` – LD_PRELOAD shim for the `ucc make` "Analyzing..." loop on Linux.
+- `AutoReady.ini.example` – default configuration.

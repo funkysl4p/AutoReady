@@ -1,0 +1,6 @@
+[AutoReady.AutoReady]
+MinReadyPlayers=2
+ReadyTimeout=30
+MessageInterval=5
+bRequireBalancedTeams=False
+bDebug=False
