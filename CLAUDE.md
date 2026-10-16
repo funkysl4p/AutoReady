@@ -44,4 +44,4 @@ parties with friends. Current version: 1.2.
 - `ut-patch.conf` selects the OldUnreal patch CI builds against (keep in line with the server).
 - `scripts/setup-ut.sh` installs UT99 via the official OldUnreal installer, pinned to that tag.
 - `scripts/compile.sh` builds AutoReady.u; used by CI and locally.
-- Deploy is manual (`workflow_dispatch`); never make it automatic.
+- No deploy automation: installation on the server is done by hand.

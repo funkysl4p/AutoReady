@@ -48,10 +48,8 @@ that already exist.
 - The UT99 installation is **cached per patch tag**: the game is downloaded
   and installed only on the first build and whenever a new patch is released
   (`UT_PATCH=newest` follows release candidates too).
-- **Deploy** (`.github/workflows/deploy.yml`) is manual only (Actions → Deploy →
-  Run workflow, with a release tag). It joins the tailnet, copies `AutoReady.u`
-  to the server, verifies the md5 and restarts `ut99-server`.
-  Required secrets: `TS_AUTHKEY`, `SSH_KEY`, `SERVER_HOST`.
+- **Deploy** is done by hand on the server: download `AutoReady.u` from the
+  release, check the md5, then follow "Installation" in `docs/DEVELOPMENT.md`.
 
 Local build against any UT99 installation:
 `scripts/compile.sh <ut99-dir>` (output in `build/`).
