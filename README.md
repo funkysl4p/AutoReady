@@ -18,7 +18,7 @@ starts, the original `MaxPlayers` is restored so late joiners can still enter.
 ## Repository layout
 ```
 AutoReady/Classes/      UnrealScript sources (*.uc)
-docs/DEVELOPMENT.md     full guide and development log (Italian)
+docs/DEVELOPMENT.md     full guide and development log
 tools/nodots.c          LD_PRELOAD shim for the ucc make loop on Linux
 AutoReady.ini.example   default configuration
 scripts/build.sh        copy sources to the server and compile
@@ -33,7 +33,7 @@ On the server (`/opt/ut99-server`):
 4. Expect `Success - 0 error(s)`; `AutoReady.u` is created in `System/`.
 
 If `ucc make` hangs on "Analyzing...", preload `tools/nodots.c` (see
-`docs/DEVELOPMENT.md`, "Come ricompilare").
+`docs/DEVELOPMENT.md`, "How to rebuild").
 
 Delete any old `AutoReady.u` before recompiling: `ucc make` skips packages
 that already exist.

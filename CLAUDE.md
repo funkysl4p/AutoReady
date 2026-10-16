@@ -33,8 +33,9 @@ parties with friends. Current version: 1.2.
 
 ## Key files
 - `AutoReady/Classes/AutoReady.uc` – source of the current build (v1.2, 21 593 bytes).
-- `docs/DEVELOPMENT.md` – full guide and development log (Italian): parameters,
+- `docs/DEVELOPMENT.md` – full guide and development log: parameters,
   installation, use cases, troubleshooting, rebuild procedure. Update its
-  "Stato attuale" and "Diario di sviluppo" sections with every new build.
+  "Current status" and "Development log" sections with every new build.
 - `tools/nodots.c` – LD_PRELOAD shim for the `ucc make` "Analyzing..." loop on Linux.
 - `AutoReady.ini.example` – default configuration.
+- Documentation (README, docs/) in English.
