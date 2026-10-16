@@ -12,8 +12,14 @@ sed -i "s#UnrealTournamentPatches/releases/latest#UnrealTournamentPatches/releas
 grep -q "releases/tags/${TAG}" "$WORK/install-ut99.sh" || { echo "Could not pin patch tag in installer" >&2; exit 1; }
 chmod +x "$WORK/install-ut99.sh"
 mkdir -p "$DEST"
+# The installer asks to accept the Epic Games Terms of Service
+# (https://legal.epicgames.com/en-US/epicgames/tos) on stdin. Unattended runs
+# must opt in explicitly with UT_ACCEPT_EPIC_TOS=1.
+if [[ "${UT_ACCEPT_EPIC_TOS:-0}" != "1" ]]; then
+  echo "Set UT_ACCEPT_EPIC_TOS=1 to accept the Epic Games Terms of Service" >&2; exit 1
+fi
 "$WORK/install-ut99.sh" --destination "$DEST" --ui-mode=none \
-  --application-entry=skip --desktop-shortcut=skip --no-unrealed
+  --application-entry=skip --desktop-shortcut=skip --no-unrealed < <(yes y)
 echo "$TAG" > "$DEST/.ut-patch"
 # Content not needed to compile a mutator (keeps the cache small).
 rm -rf "$DEST/Maps" "$DEST/Music" "$DEST/Help" "$DEST/Web" "$DEST/Logs"

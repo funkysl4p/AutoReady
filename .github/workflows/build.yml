@@ -40,6 +40,8 @@ jobs:
 
       - name: Install UT99 + patch ${{ steps.patch.outputs.tag }}
         if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          UT_ACCEPT_EPIC_TOS: "1"   # Epic Games Terms of Service accepted by the repo owner
         run: scripts/setup-ut.sh "${{ steps.patch.outputs.tag }}" "$UT_DIR"
 
       - name: Compile AutoReady
