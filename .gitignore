@@ -1,0 +1,13 @@
+# Compiled UnrealScript packages (built on the server with ucc make)
+*.u
+*.int.bak
+# Logs and local runtime files
+*.log
+Logs/
+# Local config with real values (keep only *.example in git)
+*.ini
+!*.ini.example
+# Editor / OS
+.vscode/
+*.swp
+.DS_Store
