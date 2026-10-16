@@ -5,7 +5,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 UT="$(cd "${1:?UT99 directory}" && pwd)"; OUT="${2:-$REPO/build}"
 SYS="$UT/System"; [[ -x "$SYS/ucc-bin-amd64" ]] || SYS="$UT/System64"
-mkdir -p "$OUT"
+mkdir -p "$OUT"; OUT="$(cd "$OUT" && pwd)"   # absolute: the script cd's into System later
 
 # LD_PRELOAD shim for the "Analyzing..." loop of ucc make on Linux (harmless if fixed).
 gcc -shared -fPIC -o "$OUT/nodots.so" "$REPO/tools/nodots.c" -ldl
