@@ -11,3 +11,6 @@ Logs/
 .vscode/
 *.swp
 .DS_Store
+
+# CI output
+build/

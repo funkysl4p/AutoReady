@@ -37,3 +37,21 @@ If `ucc make` hangs on "Analyzing...", preload `tools/nodots.c` (see
 
 Delete any old `AutoReady.u` before recompiling: `ucc make` skips packages
 that already exist.
+
+## CI/CD (GitHub Actions)
+
+- **Build** (`.github/workflows/build.yml`) runs on every push and pull request.
+  It installs UT99 GOTY + the OldUnreal patch selected in `ut-patch.conf`
+  using the official OldUnreal installer, compiles `AutoReady.u` and uploads it
+  as an artifact. Pushing a tag `vX.Y` also publishes a GitHub Release with
+  `AutoReady.u` and its md5.
+- The UT99 installation is **cached per patch tag**: the game is downloaded
+  and installed only on the first build and whenever a new patch is released
+  (`UT_PATCH=newest` follows release candidates too).
+- **Deploy** (`.github/workflows/deploy.yml`) is manual only (Actions → Deploy →
+  Run workflow, with a release tag). It joins the tailnet, copies `AutoReady.u`
+  to the server, verifies the md5 and restarts `ut99-server`.
+  Required secrets: `TS_AUTHKEY`, `SSH_KEY`, `SERVER_HOST`.
+
+Local build against any UT99 installation:
+`scripts/compile.sh <ut99-dir>` (output in `build/`).

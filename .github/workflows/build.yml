@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to publish releases on tags
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      UT_DIR: ${{ github.workspace }}/../ut99
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: sudo apt-get update -q && sudo apt-get install -y -q p7zip-full lbzip2 bzip2 jq
+
+      - name: Resolve UT99 patch
+        id: patch
+        run: |
+          TAG=$(scripts/resolve-patch.sh)
+          echo "UT99 patch: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      # The UT99 installation is cached per patch tag: it is downloaded and
+      # installed again only when the patch changes.
+      - name: Restore UT99 installation
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.UT_DIR }}
+          key: ut99-${{ steps.patch.outputs.tag }}-v1
+
+      - name: Install UT99 + patch ${{ steps.patch.outputs.tag }}
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: scripts/setup-ut.sh "${{ steps.patch.outputs.tag }}" "$UT_DIR"
+
+      - name: Compile AutoReady
+        run: scripts/compile.sh "$UT_DIR" build
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoReady-${{ github.sha }}
+          path: |
+            build/AutoReady.u
+            build/AutoReady.u.md5
+            build/ucc-make.log
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          gh release create "$GITHUB_REF_NAME" build/AutoReady.u build/AutoReady.u.md5 \
+            --title "AutoReady $GITHUB_REF_NAME" \
+            --notes "Built against OldUnreal patch ${{ steps.patch.outputs.tag }}. md5: $(cut -d' ' -f1 build/AutoReady.u.md5)"

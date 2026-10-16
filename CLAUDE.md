@@ -39,3 +39,9 @@ parties with friends. Current version: 1.2.
 - `tools/nodots.c` – LD_PRELOAD shim for the `ucc make` "Analyzing..." loop on Linux.
 - `AutoReady.ini.example` – default configuration.
 - Documentation (README, docs/) in English.
+
+## CI/CD
+- `ut-patch.conf` selects the OldUnreal patch CI builds against (keep in line with the server).
+- `scripts/setup-ut.sh` installs UT99 via the official OldUnreal installer, pinned to that tag.
+- `scripts/compile.sh` builds AutoReady.u; used by CI and locally.
+- Deploy is manual (`workflow_dispatch`); never make it automatic.
