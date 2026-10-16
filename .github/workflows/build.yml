@@ -14,10 +14,13 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     env:
-      UT_DIR: ${{ github.workspace }}/../ut99
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v7
+
+      # Absolute path outside the workspace: actions/cache rejects '..' in paths.
+      - name: Set UT99 directory
+        run: echo "UT_DIR=$HOME/ut99" >> "$GITHUB_ENV"
 
       - name: Install tools
         run: sudo apt-get update -q && sudo apt-get install -y -q p7zip-full lbzip2 bzip2 jq
