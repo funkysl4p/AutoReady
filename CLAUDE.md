@@ -1,16 +1,17 @@
 # AutoReady – rules for working on the project
 
-All rules, constraints and conventions live here. Overview, installation and
-configuration for users live in `README.md`; descriptions, build, procedures,
-backlog and history in `docs/DEVELOPMENT.md`.
+All rules, constraints and conventions live here. Everything a user of the
+mutator needs lives in `README.md`; the build in `docs/BUILD.md`; status,
+backlog, internals and history in `docs/DEVELOPMENT.md`.
 
 ## Repository layout
 
 ```
 AutoReady/Classes/        UnrealScript sources (*.uc)
 AutoReady.ini.example     default configuration
-README.md                 user documentation: overview, installation, configuration
-docs/DEVELOPMENT.md       backlog, behaviour, build, development log
+README.md                 user documentation: installation, configuration, commands, use cases, logs
+docs/BUILD.md             CI, local and manual build
+docs/DEVELOPMENT.md       status, backlog, internals, development log
 scripts/compile.sh        compile AutoReady.u against a UT99 installation
 scripts/setup-ut.sh       install UT99 + a given OldUnreal patch (used by CI)
 scripts/resolve-patch.sh  resolve the patch tag from ut-patch.conf
@@ -42,14 +43,6 @@ Keep this layout up to date when files are added, moved or removed.
 - If a change requires breaking one of these, say so explicitly and update
   this list in the same commit.
 
-## UnrealScript 469
-- No `Eval()`: use the `IfStr` helper in `AutoReady.uc`.
-- A string literal cannot span lines.
-- `Classes/` contains only `.uc` files.
-- `ucc make` skips packages that already exist: delete the old `AutoReady.u`
-  before compiling (`scripts/compile.sh` does it).
-- On Linux `ucc make` needs the `tools/nodots.c` preload shim (469e and 469f).
-
 ## Conventions
 - Code comments, on-screen messages, log lines and documentation in English.
 - Describe and justify behaviour only in terms of stock UT99 (Engine,
@@ -69,6 +62,10 @@ Keep this layout up to date when files are added, moved or removed.
   (start conditions, messages, timings), update that table in the same commit.
 - A change is verified by the CI build: it must end with
   `Success - 0 error(s)`. Locally: `scripts/compile.sh <ut99-dir>`.
+- Always build through `scripts/compile.sh`, never by hand: it applies the
+  `ucc make` workarounds described in `docs/BUILD.md`.
+- The CI build runs only for changes to the paths listed in `build.yml`; when
+  a new file or folder affects `AutoReady.u`, add it to those path filters.
 - Do not report a change as working until the CI build has passed; even then
   state that it is untested in game.
 - For every new build: bump `VERSION` in `AutoReady.uc`, update

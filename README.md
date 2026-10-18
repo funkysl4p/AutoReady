@@ -18,19 +18,27 @@ restored and late joiners can still enter.
 
 Behaviour in every situation: see "Behaviour for each use case" below.
 
-## Installation
+## Installation and upgrade
+
+AutoReady runs on the server only: clients download nothing.
 
 1. Download `AutoReady.u` and `AutoReady.u.md5` from the latest
    [release](../../releases) and check them with `md5sum -c AutoReady.u.md5`.
-2. With the server stopped, copy `AutoReady.u` to `System/`.
-   Do **not** add it to `ServerPackages`.
-3. Copy `AutoReady.ini.example` to `System/AutoReady.ini` and adjust it
-   (see Configuration).
-4. Enable it in the presets that use tournament mode:
-   `Mutators=AutoReady.AutoReady` and `GameSettings=bTournament=True`.
+2. Stop the server.
+3. Copy `AutoReady.u` to the server `System/` folder, replacing any older
+   version. Do **not** add it to `ServerPackages`.
+4. On first install, copy `AutoReady.ini.example` to `System/AutoReady.ini`
+   and adjust it (see Configuration). Lines must not have leading spaces.
+5. Start the server and check the log for the startup line
+   `AutoReady: v<version> active - MinReady=… Timeout=…`.
 
-Details (upgrade, enabling it, log checks):
-"Installation" in [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+**Enabling it.** Add `AutoReady.AutoReady` to the mutators of every game
+configuration that uses tournament mode (`bTournament=True`), for example on
+the server command line (`?Mutator=AutoReady.AutoReady`) or in the mutator
+list of the game configuration; combine it with other mutators as a
+comma-separated list. Keep `MinPlayers=0` and `InitialBots=0`: bots are not
+counted. In configurations with `bTournament=False` AutoReady is not needed;
+if present, it disables itself.
 
 ## Configuration
 
@@ -59,6 +67,18 @@ bRequireBalancedTeams=False
 bDebug=False
 ```
 
+## Admin commands
+
+Commands are typed in the game console. Admin commands require `adminlogin <password>` first.
+
+| Command | Who | Effect |
+|---|---|---|
+| `mutate ar status` | Anyone | Shows the requester how many players are ready and the full list of who is missing. Also reports an admin hold or a match already started. |
+| `mutate ar start` | Admin | Marks all present players ready and clears any hold: the countdown starts on the next second. Centre: "Admin forced start". |
+| `mutate ar hold` | Admin | Blocks the automatic start until `mutate ar start`. Stops the timeout and, if the countdown had started, restores the original `MaxPlayers`. Centre, every 3 s: "Start on hold by admin". |
+
+Once the match has started, admin commands reply "match already started". An unknown command replies with the list of valid commands.
+
 ## Behaviour for each use case
 
 Terms used below:
@@ -86,3 +106,57 @@ Terms used below:
 | Match started | `MaxPlayers` = `OriginalMax`, newcomers join normally. AutoReady stops until the next map. | Log: "match started…" summary |
 | `bTournament=False` | AutoReady does nothing: the match starts with the stock rule (`NetWait`). | Log: "bTournament=False, nothing to do" |
 | Gametype not `DeathMatchPlus` or a subclass | AutoReady disables itself. | Log: "unsupported gametype, disabled" |
+
+## Logging and troubleshooting
+
+AutoReady writes to the server log with the `AutoReady:` prefix. Some log
+collectors (e.g. systemd's journal) strip the prefix: search for the message
+text instead. `ucc.log` is written in 32 KB blocks, so the most recent lines
+may not be there yet; the server's standard output is up to date.
+
+**Normal lines (always logged)**
+
+| Line | Meaning |
+|---|---|
+| `v<version> active - MinReady=<n> Timeout=<n>s Balanced=<bool> Debug=<bool>` | Mutator loaded, with the values read from `AutoReady.ini`. |
+| `majority ready (<Ready>/<Present>), <ReadyTimeout>s timeout started` | Latecomer timeout started. |
+| `timeout expired with <Ready>/<Present> ready, marked ready: <names>` | Timeout expired, players forced ready. |
+| `all players ready, MaxPlayers <OriginalMax> -> <Present>, countdown started` | Start: `MaxPlayers` lowered. |
+| `player count changed during countdown, MaxPlayers <old> -> <new>` | Realignment during the countdown. |
+| `player count dropped to <Present>, start cancelled, MaxPlayers restored to <OriginalMax>` | Start cancelled. |
+| `match started: <n> players, waited <n>s, <n> forced ready (<names>), MaxPlayers restored to <OriginalMax>` | Summary once the match starts. |
+| `admin <name> forced start` / `admin <name> put start on hold` | Admin commands. |
+| `bTournament=False, nothing to do` / `unsupported gametype, disabled` | AutoReady inactive for this map. |
+
+**`[debug]` lines** (with `bDebug=True`): one line per state change, with
+present, ready, `NumPlayers`, `MaxPlayers`, `CountDown`, timeout, admin hold
+and, for each player, name, class, `ready`, `spec`, `waiting` and state name.
+During the countdown one line per second is logged because `CountDown`
+changes.
+
+**Common problems**
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| The startup line shows values different from `AutoReady.ini` | The `.ini` was edited while the server was running (UT rewrites it on shutdown), or lines have leading spaces | Edit with the server stopped, without leading spaces |
+| The match never starts with everyone ready | `Present < MinReadyPlayers`, admin hold active, `bTournament=False`, or an outdated `AutoReady.u` | Check the startup line, `mutate ar status` and the md5 of `AutoReady.u` |
+| `Unknown Mutator in use: AutoReady.AutoReady` | Message from another component that does not recognise the name | Harmless |
+
+## Known limitations
+
+- **Joining during the countdown:** for the 10 seconds of the countdown
+  `MaxPlayers` equals the player count, so anyone connecting is rejected or
+  joins as a spectator. Unavoidable: the game checks `NumPlayers == MaxPlayers`
+  every second.
+- **Bots** are not counted and never press Fire.
+- **Gametypes:** `DeathMatchPlus` and subclasses only (DM, TDM, CTF,
+  Domination, Assault).
+
+## Build
+
+You only need this if you want to compile `AutoReady.u` yourself: every
+release already ships the compiled package and its md5. The build runs on
+GitHub Actions against UT99 GOTY + the OldUnreal patch, and can also be run
+locally with `scripts/compile.sh` on any complete UT99 Linux installation.
+CI behaviour, local build and the manual procedure (including the `ucc make`
+workaround on Linux) are described in [`docs/BUILD.md`](docs/BUILD.md).
