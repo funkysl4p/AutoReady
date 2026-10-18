@@ -121,7 +121,7 @@ function bool IsPlayer(Pawn P)
         return false;
     // Real spectators (and server helpers like MessagingSpectator) use a
     // Spectator class. bIsSpectator is not reliable: players waiting for the
-    // match (state PlayerWaiting, e.g. after the FNN warm-up reset) have it set.
+    // match (stock PlayerPawn state PlayerWaiting) have it set.
     if (PP.PlayerReplicationInfo == None)
         return false;
     return true;
@@ -366,7 +366,7 @@ function Timer()
 
     if (Ready == Present && bBalanced)
     {
-        OriginalMax = DMP.MaxPlayers;   // read now: VoteSys GameSettings are already applied
+        OriginalMax = DMP.MaxPlayers;   // read now: other actors may change it after InitGame
         DMP.MaxPlayers = Present;
         bAdjusted = true;
         LogAR("all players ready, MaxPlayers " $ OriginalMax $ " -> " $ Present $ ", countdown started");
